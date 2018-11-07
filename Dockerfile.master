@@ -1,0 +1,24 @@
+FROM debian:stretch
+
+# Install prerequisites
+RUN apt-get update && \
+    apt-get install -y \
+      wget \
+      gnupg
+
+# Import SaltStack repo key
+RUN wget -O - https://repo.saltstack.com/apt/debian/9/amd64/latest/SALTSTACK-GPG-KEY.pub | apt-key add -
+
+RUN echo 'deb http://repo.saltstack.com/apt/debian/9/amd64/latest stretch main' >> /etc/apt/sources.list.d/saltstack.list
+
+# Install Salt components 
+RUN apt-get update && \
+    apt-get install -y \
+      virt-what \
+      salt-master # salt-ssh salt-syndic salt-api # salt-cloud, salt-minion
+
+RUN sed  -i "s|#auto_accept: False|auto_accept: True|g" /etc/salt/master
+
+ENTRYPOINT ["salt-master", "-l", "debug"]
+
+
